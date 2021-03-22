@@ -1,29 +1,18 @@
 import "./styles/global.scss";
-import "./styles/content.scss";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import { MovieCard } from "./components/MovieCard";
-import { SideBar } from "./components/SideBar";
 import { Content } from "./components/Content";
+import { SideBar } from "./components/SideBar";
 import { GenreResponse } from "./models/genreResponse";
+import { MovieResponse } from "./models/movieResponse";
 import { api } from "./services/api";
-
-interface MovieProps {
-  imdbID: string;
-  Title: string;
-  Poster: string;
-  Ratings: Array<{
-    Source: string;
-    Value: string;
-  }>;
-  Runtime: string;
-}
 
 export function App() {
   const [selectedGenreId, setSelectedGenreId] = useState(1);
   const [genres, setGenres] = useState<GenreResponse[]>([]);
-  const [movies, setMovies] = useState<MovieProps[]>([]);
+  const [movies, setMovies] = useState<MovieResponse[]>([]);
+
   const [selectedGenre, setSelectedGenre] = useState<GenreResponse>(
     {} as GenreResponse
   );
@@ -36,7 +25,7 @@ export function App() {
 
   useEffect(() => {
     api
-      .get<MovieProps[]>(`movies/?Genre_id=${selectedGenreId}`)
+      .get<MovieResponse[]>(`movies/?Genre_id=${selectedGenreId}`)
       .then((response) => {
         setMovies(response.data);
       });
@@ -46,9 +35,9 @@ export function App() {
     });
   }, [selectedGenreId]);
 
-  function handleClickButton(id: number) {
+  const handleClickButton = useCallback((id: number) => {
     setSelectedGenreId(id);
-  }
+  }, []);
 
   return (
     <div style={{ display: "flex", flexDirection: "row" }}>
@@ -57,28 +46,7 @@ export function App() {
         selectedGenreId={selectedGenreId}
         handleClickButton={handleClickButton}
       />
-
-      <div className="container">
-        <header>
-          <span className="category">
-            Categoria:<span> {selectedGenre.title}</span>
-          </span>
-        </header>
-
-        <main>
-          <div className="movies-list">
-            {movies.map((movie) => (
-              <MovieCard
-                key={movie.imdbID}
-                title={movie.Title}
-                poster={movie.Poster}
-                runtime={movie.Runtime}
-                rating={movie.Ratings[0].Value}
-              />
-            ))}
-          </div>
-        </main>
-      </div>
+      <Content selectedGenre={selectedGenre} movies={movies} />
     </div>
   );
 }

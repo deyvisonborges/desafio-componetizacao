@@ -1,7 +1,7 @@
-import { Button } from "../components/Button";
-import { GenreResponse } from "../models/genreResponse";
 import "../styles/sidebar.scss";
 
+import { Button } from "../components/Button";
+import { GenreResponse } from "../models/genreResponse";
 interface SideBarProps {
   genres: GenreResponse[];
   selectedGenreId?: number;
